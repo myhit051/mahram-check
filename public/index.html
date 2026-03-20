@@ -5,192 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>มะหฺรอมเช็ค</title>
   <meta name="description" content="ตรวจสอบความเป็นมะหฺรอมตามหลักอิสลาม">
+  <meta name="theme-color" content="#d4a853">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="icon" type="image/png" href="/icons/icon-192.png">
+  <link rel="apple-touch-icon" href="/icons/icon-192.png">
   <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&family=Noto+Naskh+Arabic:wght@400;600&display=swap" rel="stylesheet">
-  <style>
-    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-    :root{
-      --bg:#f8f5f0;--surface:#ffffff;--surface-alt:#faf8f5;
-      --border:#e8e2da;--border-light:#f0ebe4;
-      --text:#2c2420;--text-sec:#8a7e74;--text-ter:#b5a99e;
-      --accent:#d4a853;--accent-dark:#b8903e;--accent-light:#f5ecd4;
-      --green:#3a9e6e;--green-bg:#eef8f2;--green-border:#c4e8d4;
-      --red:#d45555;--red-bg:#fdf0f0;--red-border:#f0c8c8;
-      --gray-bg:#f5f2ee;--gray-border:#ddd8d0;
-    }
-    body{
-      font-family:'IBM Plex Sans Thai',sans-serif;
-      background:linear-gradient(160deg,#fdf9f3 0%,#f0e8dc 40%,#e8ddd0 100%);
-      color:var(--text);min-height:100vh;min-height:100dvh;
-      overflow-x:hidden;-webkit-font-smoothing:antialiased;
-    }
-    @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
-    @keyframes slideUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
-    @keyframes popIn{0%{opacity:0;transform:scale(.85)}60%{transform:scale(1.03)}100%{opacity:1;transform:scale(1)}}
-    @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
-    @keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
-
-    .container{max-width:480px;margin:0 auto;position:relative;z-index:1}
-
-    /* Gender Screen */
-    #genderScreen{
-      display:flex;flex-direction:column;align-items:center;justify-content:center;
-      min-height:90vh;min-height:90dvh;text-align:center;padding:24px;position:relative;
-    }
-    .deco-circle{position:absolute;border-radius:50%;pointer-events:none}
-    .deco-1{top:-80px;right:-80px;width:260px;height:260px;background:radial-gradient(circle,#d4a85320,transparent 70%)}
-    .deco-2{bottom:-60px;left:-60px;width:200px;height:200px;background:radial-gradient(circle,#d4a85315,transparent 70%)}
-
-    .logo-wrap{animation:float 3s ease-in-out infinite;margin-bottom:32px}
-    .logo{
-      width:88px;height:88px;margin:0 auto;border-radius:28px;
-      background:linear-gradient(135deg,var(--accent),var(--accent-dark));
-      display:flex;align-items:center;justify-content:center;
-      font-size:40px;color:#fff;box-shadow:0 12px 40px #d4a85340;transform:rotate(-3deg);
-    }
-    .title{font-size:26px;font-weight:700;color:var(--text);margin-bottom:6px;letter-spacing:-0.5px}
-    .subtitle-ar{font-family:'Noto Naskh Arabic',serif;font-size:16px;color:var(--text-sec);margin-bottom:4px;direction:rtl}
-    .subtitle{font-size:14px;color:var(--text-sec);margin-bottom:44px;line-height:1.7}
-    .gender-label{font-size:13px;font-weight:600;color:var(--text-sec);margin-bottom:16px;text-transform:uppercase;letter-spacing:2px}
-    .gender-buttons{display:flex;gap:14px;width:100%;max-width:320px}
-    .gender-btn{
-      flex:1;padding:28px 16px;border-radius:20px;border:none;
-      background:var(--surface);cursor:pointer;font-family:inherit;
-      box-shadow:0 2px 12px rgba(0,0,0,0.06),0 0 0 1px rgba(0,0,0,0.04);
-      transition:all 0.25s cubic-bezier(.4,0,.2,1);
-    }
-    .gender-btn:hover,.gender-btn:active{
-      transform:translateY(-4px);
-      box-shadow:0 8px 30px #d4a85325,0 0 0 2px #d4a85340;
-    }
-    .gender-btn .sym{font-size:32px;margin-bottom:10px;color:var(--accent)}
-    .gender-btn .lbl{font-size:16px;font-weight:600;color:var(--text)}
-
-    /* Main Screen */
-    #mainScreen{display:none}
-    .topbar{
-      position:sticky;top:0;z-index:10;padding:14px 20px;
-      display:flex;align-items:center;justify-content:space-between;
-      background:rgba(255,255,255,0.75);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
-      border-bottom:1px solid var(--border-light);
-    }
-    .back-btn{background:none;border:none;color:var(--text-sec);font-size:13px;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:4px}
-    .topbar-title{display:flex;align-items:center;gap:8px;font-weight:700;font-size:15px;color:var(--text)}
-    .topbar-badge{font-size:12px;background:var(--accent-light);border-radius:20px;padding:4px 12px;color:var(--accent-dark);font-weight:600}
-
-    .content{padding:24px 20px 120px}
-
-    /* Search */
-    .search-card{
-      background:var(--surface);border-radius:24px;padding:20px;margin-bottom:20px;
-      box-shadow:0 2px 16px rgba(0,0,0,0.05);border:1px solid var(--border-light);
-    }
-    .search-label{font-size:13px;color:var(--text-sec);margin-bottom:14px;font-weight:500}
-    .search-row{display:flex;gap:10px}
-    .search-input{
-      flex:1;padding:14px 16px;border-radius:14px;border:1.5px solid var(--border);
-      background:var(--surface-alt);color:var(--text);font-size:16px;outline:none;
-      font-family:inherit;transition:border-color 0.2s,box-shadow 0.2s;
-    }
-    .search-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px #d4a85315}
-    .search-input::placeholder{color:var(--text-ter)}
-    .check-btn{
-      padding:14px 22px;border-radius:14px;border:none;
-      background:linear-gradient(135deg,var(--accent),var(--accent-dark));
-      color:#fff;font-size:15px;font-weight:600;cursor:pointer;
-      font-family:inherit;transition:all 0.2s;box-shadow:0 4px 16px #d4a85340;
-      white-space:nowrap;
-    }
-    .check-btn:disabled{background:var(--border);color:var(--text-ter);box-shadow:none;cursor:not-allowed}
-
-    /* Quick tags */
-    .quick-section{margin-bottom:28px}
-    .quick-label{font-size:11px;color:var(--text-ter);margin-bottom:10px;font-weight:600;text-transform:uppercase;letter-spacing:1.5px}
-    .quick-tags{display:flex;flex-wrap:wrap;gap:8px}
-    .quick-tag{
-      padding:7px 14px;border-radius:24px;border:1px solid var(--border);
-      background:var(--surface);color:var(--text-sec);font-size:13px;
-      cursor:pointer;font-family:inherit;transition:all 0.15s;
-    }
-    .quick-tag:hover,.quick-tag:active{background:var(--accent-light);border-color:var(--accent);color:var(--accent-dark)}
-
-    /* Loading */
-    .loading{text-align:center;padding:48px 20px;animation:slideUp 0.3s ease}
-    .loading-box{
-      width:40px;height:40px;margin:0 auto 16px;border-radius:12px;
-      background:linear-gradient(135deg,#d4a85320,#d4a85340);
-      background-size:200% 100%;animation:shimmer 1.5s linear infinite;
-    }
-    .loading p{font-size:14px;color:var(--text-sec);margin:0}
-
-    /* Result */
-    .result-wrap{animation:popIn 0.4s cubic-bezier(.4,0,.2,1);margin-bottom:28px}
-    .result-banner{
-      border-radius:24px;padding:32px 24px 28px;text-align:center;
-    }
-    .result-banner.mahram{background:var(--green-bg);border:1.5px solid var(--green-border)}
-    .result-banner.not-mahram{background:var(--red-bg);border:1.5px solid var(--red-border)}
-    .result-banner.unknown{background:var(--gray-bg);border:1.5px solid var(--gray-border)}
-    .result-icon{font-size:56px;margin-bottom:12px;filter:drop-shadow(0 2px 8px rgba(0,0,0,0.1))}
-    .result-status{font-size:18px;font-weight:700;margin-bottom:6px}
-    .result-status.mahram{color:var(--green)}
-    .result-status.not-mahram{color:var(--red)}
-    .result-status.unknown{color:var(--text-sec)}
-    .result-sub{font-size:13px;color:var(--text-sec)}
-
-    .detail-card{
-      background:var(--surface);border-radius:20px;padding:20px;margin-top:12px;
-      box-shadow:0 1px 8px rgba(0,0,0,0.04);border:1px solid var(--border-light);
-    }
-    .detail-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
-    .detail-label{font-size:13px;color:var(--text-ter);font-weight:500}
-    .detail-type{font-size:11px;padding:3px 10px;border-radius:20px;background:var(--accent-light);color:var(--accent-dark);font-weight:600}
-    .detail-query{font-size:16px;font-weight:600;color:var(--text);margin-bottom:4px}
-    .detail-reason{font-size:14px;color:var(--text-sec);line-height:1.8;margin-top:12px}
-    .quran-ref{
-      margin-top:16px;padding:12px 14px;border-radius:12px;
-      background:var(--surface-alt);font-size:12px;color:var(--text-sec);
-      line-height:1.6;border-left:3px solid var(--accent);
-    }
-    .source-badge{margin-top:14px;text-align:center;font-size:11px;color:var(--text-ter)}
-
-    /* Share */
-    .share-btn{
-      display:block;width:100%;padding:14px;border-radius:14px;
-      border:1px solid var(--border);background:var(--surface);
-      color:var(--text);font-size:14px;font-weight:500;cursor:pointer;
-      font-family:inherit;margin-top:12px;transition:all 0.2s;
-    }
-    .share-btn:hover{border-color:var(--accent);background:var(--accent-light)}
-
-    /* History */
-    .history-toggle{
-      background:none;border:none;font-size:13px;color:var(--text-sec);
-      cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:6px;padding:8px 0;
-    }
-    .history-toggle .arrow{transition:transform 0.2s;display:inline-block}
-    .history-toggle .arrow.open{transform:rotate(90deg)}
-    .history-list{display:flex;flex-direction:column;gap:6px;animation:slideUp 0.2s ease}
-    .history-item{
-      display:flex;align-items:center;gap:12px;padding:12px 16px;
-      background:var(--surface);border:1px solid var(--border-light);
-      border-radius:14px;font-size:14px;cursor:pointer;transition:all 0.15s;
-      text-align:left;width:100%;font-family:inherit;color:var(--text);
-    }
-    .history-item:hover{border-color:var(--accent)}
-    .history-icon{font-size:16px;flex-shrink:0}
-    .history-text{flex:1}
-    .history-src{font-size:10px;color:var(--text-ter)}
-
-    /* Disclaimer */
-    .disclaimer{
-      margin-top:36px;padding:14px 18px;border-radius:16px;
-      background:var(--surface-alt);border:1px solid var(--border-light);
-      font-size:12px;color:var(--text-ter);line-height:1.7;text-align:center;
-    }
-    .hidden{display:none!important}
-  </style>
+  <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 <div class="container">
@@ -221,13 +43,13 @@
       <div class="search-card">
         <div class="search-label">พิมพ์ความสัมพันธ์ที่ต้องการตรวจสอบ</div>
         <div class="search-row">
-          <input type="text" id="inputField" class="search-input" placeholder="เช่น พี่ชายของแม่, ลุง..." onkeydown="if(event.key==='Enter')doCheck()">
+          <input type="text" id="inputField" class="search-input" placeholder="เช่น พี่ชายของแม่, ลุง..." autocomplete="off">
           <button class="check-btn" id="checkBtn" onclick="doCheck()">เช็ค</button>
         </div>
+        <div id="autocompleteList" class="autocomplete-list"></div>
       </div>
       <div class="quick-section">
-        <div class="quick-label">ตัวอย่าง</div>
-        <div class="quick-tags" id="quickTags"></div>
+        <div id="quickTags"></div>
       </div>
       <div id="loadingArea" class="loading hidden">
         <div class="loading-box"></div>
@@ -238,9 +60,12 @@
         <button class="share-btn" onclick="shareResult()">📤 แชร์ผลลัพธ์</button>
       </div>
       <div id="historyArea" class="hidden" style="margin-top:8px">
-        <button class="history-toggle" onclick="toggleHistory()">
-          <span class="arrow" id="histArrow">›</span> ประวัติ (<span id="histCount">0</span>)
-        </button>
+        <div class="history-header">
+          <button class="history-toggle" onclick="toggleHistory()">
+            <span class="arrow" id="histArrow">›</span> ประวัติ (<span id="histCount">0</span>)
+          </button>
+          <button class="history-clear" onclick="clearHistory()">🗑 ลบทั้งหมด</button>
+        </div>
         <div class="history-list hidden" id="historyList"></div>
       </div>
       <div class="disclaimer">เครื่องมือช่วยเบื้องต้น อ้างอิงหลักฟิกฮ์ทั่วไป — หากสงสัยปรึกษาอุละมาอฺ</div>
@@ -248,253 +73,7 @@
   </div>
 </div>
 
-<script>
-// ========== STATE ==========
-let currentGender=null,currentResult=null,currentInput="",history=[],historyOpen=false;
-
-// ========== LIFF ==========
-let liffReady=false;
-(async()=>{try{const id="2009526885-XOQVgErD";if(id!=="YOUR_LIFF_ID"){await liff.init({liffId:id});liffReady=true;}}catch(e){console.log("LIFF skip:",e.message);}})();
-
-// ========== RULE ENGINE ==========
-const NASAB="สายเลือด (نسب)",RADA="สายนม (رضاعة)",MUSAHARAH="สายสมรส (مصاهرة)",NOT_MAHRAM="ไม่ใช่มะหฺรอม",SPOUSE="คู่สมรส";
-
-const FDB=[
-{a:["พ่อ","บิดา","อาบี","อะบี","อบู","บะบ๊ะ","บาบา","papa","dad","คุณพ่อ","วาลิด"],m:true,t:NASAB,r:"บิดา (الأب) เป็นมะหฺรอมตลอดกาล"},
-{a:["ปู่","ตา","คุณปู่","คุณตา","ปู่ทวด","ตาทวด","พ่อของพ่อ","พ่อของแม่"],m:true,t:NASAB,r:"ปู่/ตา (الجد) บรรพบุรุษชายทุกชั้น เป็นมะหฺรอมตลอดกาล"},
-{a:["ลูกชาย","บุตรชาย","ลูกผู้ชาย"],m:true,t:NASAB,r:"บุตรชาย (الابن) เป็นมะหฺรอมตลอดกาล"},
-{a:["หลานชาย","ลูกของลูกชาย","ลูกของลูกสาว","หลานปู่","หลานตา","หลาน"],m:true,t:NASAB,r:"หลานชาย เป็นมะหฺรอมตลอดกาล"},
-{a:["พี่ชาย","พี่ชายแท้ๆ","บังชาย","อะบัง","บัง","อ้าย"],m:true,t:NASAB,r:"พี่ชาย (الأخ) เป็นมะหฺรอมตลอดกาล"},
-{a:["น้องชาย","น้องชายแท้ๆ","อาเดะชาย"],m:true,t:NASAB,r:"น้องชาย (الأخ) เป็นมะหฺรอมตลอดกาล"},
-{a:["พี่ชายร่วมบิดา","พี่ชายต่างแม่","พี่ชายร่วมพ่อ"],m:true,t:NASAB,r:"พี่ชายร่วมบิดา (أخ لأب) เป็นมะหฺรอมตลอดกาล"},
-{a:["น้องชายร่วมบิดา","น้องชายต่างแม่","น้องชายร่วมพ่อ"],m:true,t:NASAB,r:"น้องชายร่วมบิดา เป็นมะหฺรอมตลอดกาล"},
-{a:["พี่ชายร่วมมารดา","พี่ชายต่างพ่อ","พี่ชายร่วมแม่"],m:true,t:NASAB,r:"พี่ชายร่วมมารดา (أخ لأم) เป็นมะหฺรอมตลอดกาล"},
-{a:["น้องชายร่วมมารดา","น้องชายต่างพ่อ","น้องชายร่วมแม่"],m:true,t:NASAB,r:"น้องชายร่วมมารดา เป็นมะหฺรอมตลอดกาล"},
-{a:["ลุง","ลุงข้างพ่อ","ลุงฝั่งพ่อ","อามิ","พี่ชายของพ่อ","คุณลุง","ปะจิ๊ก"],m:true,t:NASAB,r:"ลุง (العم) เป็นมะหฺรอมตลอดกาล"},
-{a:["อา","อาชาย","อาฝั่งพ่อ","น้องชายของพ่อ","คุณอา"],m:true,t:NASAB,r:"อา (العم) เป็นมะหฺรอมตลอดกาล"},
-{a:["น้า","น้าชาย","น้าฝั่งแม่","ลุงข้างแม่","ลุงฝั่งแม่","พี่ชายของแม่","น้องชายของแม่","คุณน้า","วอเมาะ"],m:true,t:NASAB,r:"น้า/ลุงฝั่งแม่ (الخال) เป็นมะหฺรอมตลอดกาล"},
-{a:["ลูกชายของพี่ชาย","ลูกชายพี่ชาย","หลานชายจากพี่ชาย"],m:true,t:NASAB,r:"หลานชาย (ابن الأخ) เป็นมะหฺรอมตลอดกาล"},
-{a:["ลูกชายของน้องชาย","ลูกชายน้องชาย"],m:true,t:NASAB,r:"หลานชาย (ابن الأخ) เป็นมะหฺรอมตลอดกาล"},
-{a:["ลูกชายของพี่สาว","ลูกชายพี่สาว"],m:true,t:NASAB,r:"หลานชาย (ابن الأخت) เป็นมะหฺรอมตลอดกาล"},
-{a:["ลูกชายของน้องสาว","ลูกชายน้องสาว"],m:true,t:NASAB,r:"หลานชาย (ابن الأخت) เป็นมะหฺรอมตลอดกาล"},
-{a:["สามี","ผัว","ซาวจี","คู่สมรส","ซูอามี"],m:true,t:SPOUSE,r:"สามี — อนุญาตให้สัมผัสกันได้ในฐานะคู่สมรส"},
-{a:["พ่อสามี","พ่อผัว","พ่อของสามี","พ่อตา"],m:true,t:MUSAHARAH,r:"พ่อสามี (حمو) เป็นมะหฺรอมจากการสมรส"},
-{a:["ปู่สามี","ตาสามี","พ่อของพ่อสามี"],m:true,t:MUSAHARAH,r:"ปู่/ตาของสามี เป็นมะหฺรอมจากการสมรส"},
-{a:["ลูกเลี้ยงชาย","ลูกติดสามี","ลูกชายของสามี","ลูกชายสามี"],m:true,t:MUSAHARAH,r:"ลูกเลี้ยงชาย (ابن الزوج) เป็นมะหฺรอม"},
-{a:["พ่อเลี้ยง","สามีของแม่","สามีแม่","ผัวแม่"],m:true,t:MUSAHARAH,r:"พ่อเลี้ยง (زوج الأم) เป็นมะหฺรอม"},
-{a:["พ่อนม","สามีของแม่นม"],m:true,t:RADA,r:"พ่อนม (أب من الرضاعة) เป็นมะหฺรอม"},
-{a:["พี่ชายร่วมนม","น้องชายร่วมนม","พี่น้องร่วมนม"],m:true,t:RADA,r:"พี่น้องร่วมนม เป็นมะหฺรอม"},
-{a:["ลูกพี่ลูกน้อง","ลูกพี่ลูกน้องชาย","ลูกลุง","ลูกป้า","ลูกน้า","ลูกอา","cousin","ลูกชายของลุง","ลูกชายของป้า","ลูกชายของน้า","ลูกชายของอา","ลูกชายลุง","ลูกชายป้า","ลูกชายน้า","ลูกชายอา"],m:false,t:NOT_MAHRAM,r:"ลูกพี่ลูกน้อง ไม่ใช่มะหฺรอม สามารถแต่งงานกันได้"},
-{a:["พี่เขย","สามีของพี่สาว","สามีพี่สาว","ผัวพี่สาว"],m:false,t:NOT_MAHRAM,r:"พี่เขย (زوج الأخت) ไม่ใช่มะหฺรอม"},
-{a:["น้องเขย","สามีของน้องสาว","สามีน้องสาว","ผัวน้องสาว"],m:false,t:NOT_MAHRAM,r:"น้องเขย ไม่ใช่มะหฺรอม"},
-{a:["สามีของป้า","สามีป้า","ผัวป้า"],m:false,t:NOT_MAHRAM,r:"สามีของป้า ไม่ใช่มะหฺรอม"},
-{a:["สามีของน้า","สามีน้า","สามีของอา","สามีอา"],m:false,t:NOT_MAHRAM,r:"สามีของน้า/อา ไม่ใช่มะหฺรอม"},
-{a:["น้องชายของสามี","น้องชายสามี","น้องผัว","น้องสามี"],m:false,t:NOT_MAHRAM,r:"น้องชายสามี ไม่ใช่มะหฺรอม 'พี่น้องสามีคือความตาย' (อัลบุคอรีย์)"},
-{a:["พี่ชายของสามี","พี่ชายสามี","พี่ผัว","พี่สามี"],m:false,t:NOT_MAHRAM,r:"พี่ชายสามี ไม่ใช่มะหฺรอม 'พี่น้องสามีคือความตาย' (อัลบุคอรีย์)"},
-{a:["เพื่อน","เพื่อนชาย","คนรู้จัก","คนแปลกหน้า","ชายอื่น"],m:false,t:NOT_MAHRAM,r:"ไม่มีความสัมพันธ์ทางมะหฺรอม"},
-{a:["แฟน","แฟนชาย","คู่หมั้น","คนที่คุยอยู่"],m:false,t:NOT_MAHRAM,r:"แฟน/คู่หมั้นที่ยังไม่ทำอะกัด ไม่ใช่มะหฺรอม"},
-];
-
-const MDB=[
-{a:["แม่","มารดา","อุมมี","อุมมะ","มะ","mama","mom","คุณแม่","วาลิดะห์"],m:true,t:NASAB,r:"มารดา (الأم) เป็นมะหฺรอมตลอดกาล"},
-{a:["ย่า","ยาย","คุณย่า","คุณยาย","แม่ของพ่อ","แม่ของแม่"],m:true,t:NASAB,r:"ย่า/ยาย (الجدة) บรรพบุรุษหญิงทุกชั้น เป็นมะหฺรอมตลอดกาล"},
-{a:["ลูกสาว","บุตรสาว","ลูกผู้หญิง"],m:true,t:NASAB,r:"บุตรสาว (البنت) เป็นมะหฺรอมตลอดกาล"},
-{a:["หลานสาว","ลูกสาวของลูกชาย","ลูกสาวของลูกสาว","หลานปู่","หลานตา","หลาน"],m:true,t:NASAB,r:"หลานสาว เป็นมะหฺรอมตลอดกาล"},
-{a:["พี่สาว","พี่สาวแท้ๆ","กะโปร์","อะกะ"],m:true,t:NASAB,r:"พี่สาว (الأخت) เป็นมะหฺรอมตลอดกาล"},
-{a:["น้องสาว","น้องสาวแท้ๆ","อาเดะ"],m:true,t:NASAB,r:"น้องสาว (الأخت) เป็นมะหฺรอมตลอดกาล"},
-{a:["พี่สาวร่วมบิดา","พี่สาวต่างแม่","พี่สาวร่วมพ่อ"],m:true,t:NASAB,r:"พี่สาวร่วมบิดา เป็นมะหฺรอมตลอดกาล"},
-{a:["น้องสาวร่วมบิดา","น้องสาวต่างแม่","น้องสาวร่วมพ่อ"],m:true,t:NASAB,r:"น้องสาวร่วมบิดา เป็นมะหฺรอมตลอดกาล"},
-{a:["พี่สาวร่วมมารดา","พี่สาวต่างพ่อ","พี่สาวร่วมแม่"],m:true,t:NASAB,r:"พี่สาวร่วมมารดา เป็นมะหฺรอมตลอดกาล"},
-{a:["น้องสาวร่วมมารดา","น้องสาวต่างพ่อ","น้องสาวร่วมแม่"],m:true,t:NASAB,r:"น้องสาวร่วมมารดา เป็นมะหฺรอมตลอดกาล"},
-{a:["ป้า","ป้าฝั่งพ่อ","อาหญิง","อาสาว","พี่สาวของพ่อ","คุณป้า","มะเอาะ","อัมมะห์"],m:true,t:NASAB,r:"ป้า/อาหญิง (العمة) เป็นมะหฺรอมตลอดกาล"},
-{a:["อาสาวฝั่งพ่อ","น้องสาวของพ่อ","อาผู้หญิง"],m:true,t:NASAB,r:"อาหญิง (العمة) เป็นมะหฺรอมตลอดกาล"},
-{a:["น้าสาว","น้าหญิง","น้าฝั่งแม่","ป้าข้างแม่","พี่สาวของแม่","น้องสาวของแม่","คุณน้า","คอลาห์"],m:true,t:NASAB,r:"น้า/ป้าฝั่งแม่ (الخالة) เป็นมะหฺรอมตลอดกาล"},
-{a:["ลูกสาวของพี่ชาย","ลูกสาวพี่ชาย"],m:true,t:NASAB,r:"หลานสาว (بنت الأخ) เป็นมะหฺรอมตลอดกาล"},
-{a:["ลูกสาวของน้องชาย","ลูกสาวน้องชาย"],m:true,t:NASAB,r:"หลานสาว เป็นมะหฺรอมตลอดกาล"},
-{a:["ลูกสาวของพี่สาว","ลูกสาวพี่สาว"],m:true,t:NASAB,r:"หลานสาว (بنت الأخت) เป็นมะหฺรอมตลอดกาล"},
-{a:["ลูกสาวของน้องสาว","ลูกสาวน้องสาว"],m:true,t:NASAB,r:"หลานสาว เป็นมะหฺรอมตลอดกาล"},
-{a:["ภรรยา","เมีย","คู่สมรส","ซาวจะห์","บีนี"],m:true,t:SPOUSE,r:"ภรรยา — อนุญาตให้สัมผัสกันได้ในฐานะคู่สมรส"},
-{a:["แม่ยาย","แม่ภรรยา","แม่เมีย","แม่ของภรรยา","แม่ของเมีย"],m:true,t:MUSAHARAH,r:"แม่ยาย (أم الزوجة) เป็นมะหฺรอมทันทีที่ทำอะกัด"},
-{a:["ย่าภรรยา","ยายภรรยา","ย่าเมีย","ยายเมีย"],m:true,t:MUSAHARAH,r:"ย่า/ยายของภรรยา เป็นมะหฺรอมจากการสมรส"},
-{a:["ลูกเลี้ยงหญิง","ลูกเลี้ยง","ลูกติดเมีย","ลูกสาวของภรรยา","ลูกสาวภรรยา"],m:true,t:MUSAHARAH,r:"ลูกเลี้ยงหญิง (بنت الزوجة) เป็นมะหฺรอม"},
-{a:["แม่เลี้ยง","ภรรยาของพ่อ","เมียพ่อ","ภรรยาพ่อ"],m:true,t:MUSAHARAH,r:"แม่เลี้ยง (زوجة الأب) เป็นมะหฺรอม"},
-{a:["ลูกสะใภ้","สะใภ้","ภรรยาของลูกชาย","เมียลูกชาย"],m:true,t:MUSAHARAH,r:"ลูกสะใภ้ (زوجة الابن) เป็นมะหฺรอม"},
-{a:["แม่นม","มารดานม"],m:true,t:RADA,r:"แม่นม (أم من الرضاعة) เป็นมะหฺรอม"},
-{a:["พี่สาวร่วมนม","น้องสาวร่วมนม","พี่น้องร่วมนม"],m:true,t:RADA,r:"พี่น้องสาวร่วมนม เป็นมะหฺรอม"},
-{a:["ลูกพี่ลูกน้อง","ลูกพี่ลูกน้องสาว","ลูกลุง","ลูกป้า","ลูกน้า","ลูกอา","cousin","ลูกสาวของลุง","ลูกสาวของป้า","ลูกสาวของน้า","ลูกสาวของอา","ลูกสาวลุง","ลูกสาวป้า","ลูกสาวน้า","ลูกสาวอา"],m:false,t:NOT_MAHRAM,r:"ลูกพี่ลูกน้อง ไม่ใช่มะหฺรอม สามารถแต่งงานกันได้"},
-{a:["พี่สะใภ้","ภรรยาของพี่ชาย","ภรรยาพี่ชาย","เมียพี่ชาย"],m:false,t:NOT_MAHRAM,r:"พี่สะใภ้ (زوجة الأخ) ไม่ใช่มะหฺรอม"},
-{a:["น้องสะใภ้","ภรรยาของน้องชาย","ภรรยาน้องชาย","เมียน้องชาย"],m:false,t:NOT_MAHRAM,r:"น้องสะใภ้ ไม่ใช่มะหฺรอม"},
-{a:["พี่สาวของภรรยา","พี่สาวภรรยา","พี่เมีย"],m:false,t:NOT_MAHRAM,r:"พี่สาวภรรยา ไม่ใช่มะหฺรอม"},
-{a:["น้องสาวของภรรยา","น้องสาวภรรยา","น้องเมีย"],m:false,t:NOT_MAHRAM,r:"น้องสาวภรรยา ไม่ใช่มะหฺรอม"},
-{a:["เพื่อน","เพื่อนสาว","เพื่อนหญิง","คนรู้จัก","คนแปลกหน้า","หญิงอื่น"],m:false,t:NOT_MAHRAM,r:"ไม่มีความสัมพันธ์ทางมะหฺรอม"},
-{a:["แฟน","แฟนสาว","คู่หมั้น","คนที่คุยอยู่"],m:false,t:NOT_MAHRAM,r:"แฟน/คู่หมั้นที่ยังไม่ทำอะกัด ไม่ใช่มะหฺรอม"},
-];
-
-function norm(t){return t.trim().toLowerCase().replace(/\s+/g," ").replace(/ๆ/g,"").replace(/ค่ะ|คะ|ครับ|นะ|จ้า|จ๋า|จ้ะ|หน่อย|ของฉัน|ของเรา|ของผม|ของดิฉัน|ของหนู/g,"").replace(/เเ/g,"แ").trim();}
-function findDB(db,inp){const n=norm(inp);if(!n)return null;for(const e of db)for(const a of e.a)if(norm(a)===n)return e;for(const e of db)for(const a of e.a){const na=norm(a);if(na.length>=3&&n.includes(na)&&na.length>=n.length*0.6)return e;if(n.length>=4&&na.includes(n)&&n.length>=na.length*0.6)return e;}const cl=n.replace(/ของ|ที่เป็น|ซึ่งเป็น|คือ|กับ|และ|หรือ|ที่|เป็น/g," ").replace(/\s+/g," ").trim();if(cl!==n){for(const e of db)for(const a of e.a)if(norm(a)===cl)return e;for(const e of db)for(const a of e.a){const na=norm(a);if(na.length>=3&&cl.includes(na)&&na.length>=cl.length*0.6)return e;}}return null;}
-
-function patMatch(g,inp){const n=norm(inp);const P=[
-{re:/(?:แม่|มารดา).*(?:ของ\s*)?(?:แม่|มารดา|พ่อ|บิดา).*(?:ของ\s*)?(?:ภรรยา|เมีย)/,g:"male",r:{mahram:true,type:MUSAHARAH,reason:"ย่า/ยายของภรรยา (บรรพบุรุษหญิงทุกชั้น) เป็นมะหฺรอมจากการสมรส"}},
-{re:/(?:พ่อ|บิดา).*(?:ของ\s*)?(?:แม่|มารดา|พ่อ|บิดา).*(?:ของ\s*)?(?:ภรรยา|เมีย)/,g:"male",r:{mahram:true,type:MUSAHARAH,reason:"ปู่/ตาของภรรยา เป็นมะหฺรอมจากการสมรส"}},
-{re:/(?:แม่|มารดา).*(?:ของ\s*)?(?:แม่|มารดา|พ่อ|บิดา).*(?:ของ\s*)?(?:สามี|ผัว)/,g:"female",r:{mahram:true,type:MUSAHARAH,reason:"ย่า/ยายของสามี (บรรพบุรุษหญิงทุกชั้น) เป็นมะหฺรอมจากการสมรส"}},
-{re:/(?:พ่อ|บิดา).*(?:ของ\s*)?(?:แม่|มารดา|พ่อ|บิดา).*(?:ของ\s*)?(?:สามี|ผัว)/,g:"female",r:{mahram:true,type:MUSAHARAH,reason:"ปู่/ตาของสามี เป็นมะหฺรอมจากการสมรส"}},
-{re:/(?:แม่|มารดา).*(?:ของ\s*)?(?:แม่ภรรยา|แม่เมีย|แม่ยาย|พ่อภรรยา|พ่อเมีย)/,g:"male",r:{mahram:true,type:MUSAHARAH,reason:"ย่า/ยายของภรรยา เป็นมะหฺรอมจากการสมรส"}},
-{re:/(?:พ่อ|บิดา).*(?:ของ\s*)?(?:แม่ภรรยา|แม่เมีย|แม่ยาย|พ่อภรรยา|พ่อเมีย)/,g:"male",r:{mahram:true,type:MUSAHARAH,reason:"ปู่/ตาของภรรยา เป็นมะหฺรอมจากการสมรส"}},
-{re:/(?:แม่|มารดา).*(?:ของ\s*)?(?:พ่อสามี|พ่อผัว|แม่สามี|แม่ผัว)/,g:"female",r:{mahram:true,type:MUSAHARAH,reason:"ย่า/ยายของสามี เป็นมะหฺรอมจากการสมรส"}},
-{re:/(?:พ่อ|บิดา).*(?:ของ\s*)?(?:พ่อสามี|พ่อผัว|แม่สามี|แม่ผัว)/,g:"female",r:{mahram:true,type:MUSAHARAH,reason:"ปู่/ตาของสามี เป็นมะหฺรอมจากการสมรส"}},
-{re:/(?:พี่สาว|น้องสาว|พี่ชาย|น้องชาย|ลุง|ป้า|น้า|อา).*(?:ของ\s*)?(?:พ่อ|แม่|บิดา|มารดา).*(?:ของ\s*)?(?:สามี|ผัว)/,g:"female",r:{mahram:false,type:NOT_MAHRAM,reason:"ญาติของพ่อ/แม่สามี ไม่ใช่มะหฺรอม"}},
-{re:/(?:พี่สาว|น้องสาว|พี่ชาย|น้องชาย|ลุง|ป้า|น้า|อา).*(?:ของ\s*)?(?:พ่อ|แม่|บิดา|มารดา).*(?:ของ\s*)?(?:ภรรยา|เมีย)/,g:"male",r:{mahram:false,type:NOT_MAHRAM,reason:"ญาติของพ่อ/แม่ภรรยา ไม่ใช่มะหฺรอม"}},
-{re:/ลูก(?:ชาย|สาว)?.*(?:ของ\s*)?(?:พี่ชาย|พี่สาว|น้องชาย|น้องสาว).*(?:ของ\s*)?(?:สามี|ผัว)/,g:"female",r:{mahram:false,type:NOT_MAHRAM,reason:"ลูกของพี่น้องสามี ไม่ใช่มะหฺรอม"}},
-{re:/ลูก(?:ชาย|สาว)?.*(?:ของ\s*)?(?:พี่ชาย|พี่สาว|น้องชาย|น้องสาว).*(?:ของ\s*)?(?:ภรรยา|เมีย)/,g:"male",r:{mahram:false,type:NOT_MAHRAM,reason:"ลูกของพี่น้องภรรยา ไม่ใช่มะหฺรอม"}},
-{re:/(?:ลุง|อา|น้าชาย).*(?:ของ\s*)?(?:สามี|ผัว)/,g:"female",r:{mahram:false,type:NOT_MAHRAM,reason:"ลุง/อา/น้าของสามี ไม่ใช่มะหฺรอม"}},
-{re:/(?:ป้า|อาหญิง|น้าสาว|น้าหญิง).*(?:ของ\s*)?(?:สามี|ผัว)/,g:"female",r:{mahram:false,type:NOT_MAHRAM,reason:"ป้า/น้าของสามี ไม่ใช่มะหฺรอม"}},
-{re:/(?:ลุง|อา|น้าชาย).*(?:ของ\s*)?(?:ภรรยา|เมีย)/,g:"male",r:{mahram:false,type:NOT_MAHRAM,reason:"ลุง/อา/น้าของภรรยา ไม่ใช่มะหฺรอม"}},
-{re:/(?:ป้า|อาหญิง|น้าสาว|น้าหญิง).*(?:ของ\s*)?(?:ภรรยา|เมีย)/,g:"male",r:{mahram:false,type:NOT_MAHRAM,reason:"ป้า/น้าของภรรยา ไม่ใช่มะหฺรอม"}},
-{re:/(?:ปู่|ตา).*(?:ของ\s*)?(?:สามี|ผัว)/,g:"female",r:{mahram:true,type:MUSAHARAH,reason:"ปู่/ตาของสามี เป็นมะหฺรอมจากการสมรส"}},
-{re:/(?:ย่า|ยาย).*(?:ของ\s*)?(?:ภรรยา|เมีย)/,g:"male",r:{mahram:true,type:MUSAHARAH,reason:"ย่า/ยายของภรรยา เป็นมะหฺรอมจากการสมรส"}},
-{re:/ลูก.*(?:ของ\s*)?ลูกพี่ลูกน้อง/,g:"both",r:{mahram:false,type:NOT_MAHRAM,reason:"ลูกของลูกพี่ลูกน้อง ไม่ใช่มะหฺรอม"}},
-{re:/(?:พี่ชาย|พี่|บัง).*(?:ของ\s*)?พ่อ/,g:"female",r:{mahram:true,type:NASAB,reason:"ลุงฝั่งพ่อ (العم) เป็นมะหฺรอมตลอดกาล"}},
-{re:/(?:น้องชาย|น้อง).*(?:ของ\s*)?พ่อ/,g:"female",r:{mahram:true,type:NASAB,reason:"อาฝั่งพ่อ (العم) เป็นมะหฺรอมตลอดกาล"}},
-{re:/(?:พี่ชาย|พี่|บัง).*(?:ของ\s*)?แม่/,g:"female",r:{mahram:true,type:NASAB,reason:"น้า/ลุงฝั่งแม่ (الخال) เป็นมะหฺรอมตลอดกาล"}},
-{re:/(?:น้องชาย|น้อง).*(?:ของ\s*)?แม่/,g:"female",r:{mahram:true,type:NASAB,reason:"น้าชายฝั่งแม่ (الخال) เป็นมะหฺรอมตลอดกาล"}},
-{re:/(?:พี่สาว|พี่).*(?:ของ\s*)?พ่อ/,g:"male",r:{mahram:true,type:NASAB,reason:"ป้าฝั่งพ่อ (العمة) เป็นมะหฺรอมตลอดกาล"}},
-{re:/(?:น้องสาว|น้อง).*(?:ของ\s*)?พ่อ/,g:"male",r:{mahram:true,type:NASAB,reason:"อาหญิงฝั่งพ่อ (العمة) เป็นมะหฺรอมตลอดกาล"}},
-{re:/(?:พี่สาว|พี่).*(?:ของ\s*)?แม่/,g:"male",r:{mahram:true,type:NASAB,reason:"ป้า/น้าสาวฝั่งแม่ (الخالة) เป็นมะหฺรอมตลอดกาล"}},
-{re:/(?:น้องสาว|น้อง).*(?:ของ\s*)?แม่/,g:"male",r:{mahram:true,type:NASAB,reason:"น้าสาวฝั่งแม่ (الخالة) เป็นมะหฺรอมตลอดกาล"}},
-{re:/ลูกชาย.*(?:ของ\s*)?(?:พี่ชาย|พี่สาว|น้องชาย|น้องสาว)/,g:"female",r:{mahram:true,type:NASAB,reason:"หลานชาย (ลูกชายพี่น้อง) เป็นมะหฺรอมตลอดกาล"}},
-{re:/ลูกสาว.*(?:ของ\s*)?(?:พี่ชาย|พี่สาว|น้องชาย|น้องสาว)/,g:"male",r:{mahram:true,type:NASAB,reason:"หลานสาว (ลูกสาวพี่น้อง) เป็นมะหฺรอมตลอดกาล"}},
-{re:/ลูก.*(?:ของ\s*)?(?:ลุง|ป้า|น้า|อา)/,g:"both",r:{mahram:false,type:NOT_MAHRAM,reason:"ลูกพี่ลูกน้อง ไม่ใช่มะหฺรอม"}},
-{re:/สามี.*(?:ของ\s*)?(?:พี่สาว|น้องสาว|ป้า|น้า|อา)/,g:"female",r:{mahram:false,type:NOT_MAHRAM,reason:"สามีของญาติฝ่ายหญิง ไม่ใช่มะหฺรอม"}},
-{re:/ภรรยา.*(?:ของ\s*)?(?:พี่ชาย|น้องชาย|ลุง|น้า|อา)|เมีย.*(?:ของ\s*)?(?:พี่ชาย|น้องชาย)/,g:"male",r:{mahram:false,type:NOT_MAHRAM,reason:"ภรรยาของญาติฝ่ายชาย ไม่ใช่มะหฺรอม"}},
-{re:/(?:พี่ชาย|น้องชาย|พี่|น้อง).*(?:ของ\s*)?(?:สามี|ผัว)/,g:"female",r:{mahram:false,type:NOT_MAHRAM,reason:"พี่น้องชายสามี ไม่ใช่มะหฺรอม 'พี่น้องสามีคือความตาย' (อัลบุคอรีย์)"}},
-{re:/(?:พี่สาว|น้องสาว|พี่|น้อง).*(?:ของ\s*)?(?:ภรรยา|เมีย)/,g:"male",r:{mahram:false,type:NOT_MAHRAM,reason:"พี่น้องสาวภรรยา ไม่ใช่มะหฺรอม"}},
-{re:/(?:พ่อ|บิดา).*(?:ของ\s*)?(?:สามี|ผัว)/,g:"female",r:{mahram:true,type:MUSAHARAH,reason:"พ่อสามี เป็นมะหฺรอมจากการสมรส"}},
-{re:/(?:แม่|มารดา).*(?:ของ\s*)?(?:ภรรยา|เมีย)/,g:"male",r:{mahram:true,type:MUSAHARAH,reason:"แม่ภรรยา เป็นมะหฺรอมจากการสมรส"}},
-{re:/ลูก(?:ชาย)?.*(?:ของ\s*)?(?:สามี|ผัว)/,g:"female",r:{mahram:true,type:MUSAHARAH,reason:"ลูกชายของสามี เป็นมะหฺรอมจากการสมรส"}},
-{re:/ลูก(?:สาว)?.*(?:ของ\s*)?(?:ภรรยา|เมีย)/,g:"male",r:{mahram:true,type:MUSAHARAH,reason:"ลูกสาวของภรรยา เป็นมะหฺรอมจากการสมรส"}},
-{re:/ลูกชาย.*(?:ของ\s*)?(?:ลูกชาย|ลูกสาว)/,g:"female",r:{mahram:true,type:NASAB,reason:"หลานชาย เป็นมะหฺรอมตลอดกาล"}},
-{re:/ลูกสาว.*(?:ของ\s*)?(?:ลูกชาย|ลูกสาว)/,g:"male",r:{mahram:true,type:NASAB,reason:"หลานสาว เป็นมะหฺรอมตลอดกาล"}},
-{re:/(?:พ่อ|บิดา).*(?:ของ\s*)?(?:พ่อ|แม่)/,g:"female",r:{mahram:true,type:NASAB,reason:"ปู่/ตา (الجد) เป็นมะหฺรอมตลอดกาล"}},
-{re:/(?:แม่|มารดา).*(?:ของ\s*)?(?:พ่อ|แม่)/,g:"male",r:{mahram:true,type:NASAB,reason:"ย่า/ยาย (الجدة) เป็นมะหฺรอมตลอดกาล"}},
-];for(const p of P){if((p.g==="both"||p.g===g)&&p.re.test(n))return p.r;}return null;}
-
-function check(gender,input){
-  const db=gender==="female"?FDB:MDB;const n=norm(input);
-  const ofC=(n.match(/ของ/g)||[]).length;
-  const hasSp=/สามี|ผัว|ภรรยา|เมีย/.test(n);
-  const compound=ofC>=2||n.length>15||(ofC>=1&&hasSp);
-  if(compound){const p=patMatch(gender,input);if(p)return p;}
-  const d=findDB(db,input);if(d)return{mahram:d.m,type:d.t,reason:d.r};
-  if(!compound){const p=patMatch(gender,input);if(p)return p;}
-  return null;
-}
-
-// ========== AI FALLBACK ==========
-async function aiCheck(gender,input){
-  try{const r=await fetch("/api/mahram",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({gender,input})});if(!r.ok)throw 0;return await r.json();}catch{return null;}
-}
-
-// ========== UI ==========
-const QF=["พ่อ","พี่ชาย","ลุง","น้าชาย","ลูกพี่ลูกน้อง","พี่ชายของสามี","พ่อสามี","สามีของป้า","ลูกชายของพี่สาว","พี่เขย"];
-const QM=["แม่","พี่สาว","ป้า","น้าสาว","ลูกพี่ลูกน้อง","พี่สาวของภรรยา","แม่ยาย","ลูกสาวของพี่ชาย","น้องสะใภ้","ลูกสะใภ้"];
-
-function selectGender(g){
-  currentGender=g;
-  document.getElementById("genderScreen").style.display="none";
-  document.getElementById("mainScreen").style.display="block";
-  document.getElementById("genderBadge").textContent=g==="female"?"♀ หญิง":"♂ ชาย";
-  document.getElementById("inputField").placeholder=g==="female"?"เช่น พี่ชายของแม่, ลุง...":"เช่น พี่สาวของพ่อ, ป้า...";
-  renderTags();setTimeout(()=>document.getElementById("inputField").focus(),300);
-}
-function goBack(){
-  currentGender=null;currentResult=null;currentInput="";history=[];historyOpen=false;
-  document.getElementById("genderScreen").style.display="";
-  document.getElementById("mainScreen").style.display="none";
-  document.getElementById("inputField").value="";
-  hide("resultArea");hide("shareArea");hide("historyArea");
-}
-function renderTags(){
-  const tags=currentGender==="female"?QF:QM;
-  document.getElementById("quickTags").innerHTML=tags.map(t=>`<button class="quick-tag" onclick="setInp('${t}')">${t}</button>`).join("");
-}
-function setInp(t){document.getElementById("inputField").value=t;hide("resultArea");hide("shareArea");document.getElementById("inputField").focus();}
-
-async function doCheck(){
-  const inp=document.getElementById("inputField").value.trim();
-  if(!inp||!currentGender)return;currentInput=inp;
-  hide("resultArea");hide("shareArea");show("loadingArea");
-  document.getElementById("checkBtn").disabled=true;
-  document.getElementById("loadingText").textContent="กำลังตรวจสอบ...";
-
-  let res=check(currentGender,inp),src="rule";
-  if(!res){
-    document.getElementById("loadingText").textContent="AI กำลังวิเคราะห์...";
-    res=await aiCheck(currentGender,inp);src=res?"ai":"error";
-    if(!res)res={mahram:null,type:"ไม่สามารถระบุได้",reason:"ลองพิมพ์ใหม่ เช่น 'พี่ชายของแม่'"};
-  }
-  currentResult={...res,source:src,input:inp};
-  history.unshift(currentResult);if(history.length>15)history.pop();
-  hide("loadingArea");document.getElementById("checkBtn").disabled=false;
-  renderResult(res,src,inp);renderHist();
-}
-
-function renderResult(res,src,inp){
-  const cls=res.mahram===true?"mahram":res.mahram===false?"not-mahram":"unknown";
-  const icon=res.mahram===true?"🤝":res.mahram===false?"🚫":"❓";
-  const st=res.mahram===true?"เป็นมะหฺรอม":res.mahram===false?"ไม่เป็นมะหฺรอม":"ไม่สามารถระบุได้";
-  const sub=res.mahram===true?"จับมือสลามกันได้":res.mahram===false?"ไม่อนุญาตให้สัมผัส":"กรุณาลองอีกครั้ง";
-  const showQ=res.type&&res.type!==NOT_MAHRAM&&res.type!==SPOUSE&&res.type!=="ไม่สามารถระบุได้";
-
-  document.getElementById("resultArea").innerHTML=`
-    <div class="result-wrap">
-      <div class="result-banner ${cls}">
-        <div class="result-icon">${icon}</div>
-        <div class="result-status ${cls}">${st}</div>
-        <div class="result-sub">${sub}</div>
-      </div>
-      <div class="detail-card">
-        <div class="detail-header">
-          <span class="detail-label">รายละเอียด</span>
-          <span class="detail-type">${res.type}</span>
-        </div>
-        <div class="detail-query">"${inp}"</div>
-        <div class="detail-reason">${res.reason}</div>
-        ${showQ?'<div class="quran-ref">📖 อ้างอิง: ซูเราะฮฺ อันนิซาอฺ (4:23)</div>':''}
-        <div class="source-badge">${src==="rule"?"📚 ฐานข้อมูล":src==="ai"?"🤖 AI (Gemini)":""}</div>
-      </div>
-    </div>`;
-  show("resultArea");show("shareArea");
-  document.getElementById("resultArea").scrollIntoView({behavior:"smooth",block:"nearest"});
-}
-
-function renderHist(){
-  if(!history.length){hide("historyArea");return;}
-  show("historyArea");document.getElementById("histCount").textContent=history.length;
-  const list=document.getElementById("historyList");
-  list.innerHTML=history.map((it,i)=>{
-    const ic=it.mahram===true?"🤝":it.mahram===false?"🚫":"❓";
-    return`<button class="history-item" onclick="replay(${i})"><span class="history-icon">${ic}</span><span class="history-text">${it.input}</span><span class="history-src">${it.source==="rule"?"📚":"🤖"}</span></button>`;
-  }).join("");
-  if(historyOpen)list.classList.remove("hidden");
-}
-function toggleHistory(){
-  historyOpen=!historyOpen;
-  document.getElementById("historyList").classList.toggle("hidden",!historyOpen);
-  document.getElementById("histArrow").classList.toggle("open",historyOpen);
-}
-function replay(i){const it=history[i];if(!it)return;document.getElementById("inputField").value=it.input;renderResult(it,it.source,it.input);}
-
-function shareResult(){
-  if(!currentResult)return;
-  const ic=currentResult.mahram===true?"🤝":currentResult.mahram===false?"🚫":"❓";
-  const st=currentResult.mahram===true?"เป็นมะหฺรอม — จับมือสลามได้":currentResult.mahram===false?"ไม่เป็นมะหฺรอม — ไม่อนุญาตให้สัมผัส":"ไม่สามารถระบุได้";
-  const txt=`${ic} มะหฺรอมเช็ค\n\nตรวจสอบ: "${currentResult.input}"\nผลลัพธ์: ${st}\nประเภท: ${currentResult.type}\nเหตุผล: ${currentResult.reason}`;
-  if(liffReady&&liff.isInClient()){liff.shareTargetPicker([{type:"text",text:txt}]).catch(()=>fallback(txt));}else{fallback(txt);}
-}
-function fallback(txt){if(navigator.share){navigator.share({title:"มะหฺรอมเช็ค",text:txt}).catch(()=>{});}else{navigator.clipboard.writeText(txt).then(()=>alert("คัดลอกแล้ว!")).catch(()=>{});}}
-
-function show(id){document.getElementById(id).classList.remove("hidden");}
-function hide(id){document.getElementById(id).classList.add("hidden");}
-</script>
+<script src="js/data.js"></script>
+<script src="js/app.js"></script>
 </body>
 </html>
