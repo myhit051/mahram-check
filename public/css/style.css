@@ -38,9 +38,10 @@ body{
 .logo-wrap{animation:float 3s ease-in-out infinite;margin-bottom:32px}
 .logo{
   width:88px;height:88px;margin:0 auto;border-radius:28px;
-  background:linear-gradient(135deg,var(--accent),var(--accent-dark));
+  background:linear-gradient(145deg,#3d2e1a,#2a1f10);
   display:flex;align-items:center;justify-content:center;
-  font-size:40px;color:#fff;box-shadow:0 12px 40px #d4a85340;transform:rotate(-3deg);
+  font-size:44px;box-shadow:0 12px 40px rgba(212,168,83,0.3);transform:rotate(-3deg);
+  border:1.5px solid rgba(212,168,83,0.25);
 }
 .title{font-size:26px;font-weight:700;color:var(--text);margin-bottom:6px;letter-spacing:-0.5px}
 .subtitle-ar{font-family:'Noto Naskh Arabic',serif;font-size:16px;color:var(--text-sec);margin-bottom:4px;direction:rtl}

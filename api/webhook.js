@@ -77,7 +77,7 @@ function makeFlexResult(input, result) {
 function makeWelcome() {
   return {
     type: "flex",
-    altText: "☪ มะหฺรอมเช็ค — ตรวจสอบว่าจับมือสลามกันได้ไหม",
+    altText: "🤝 มะหฺรอมเช็ค — ตรวจสอบว่าจับมือสลามกันได้ไหม",
     contents: {
       type: "bubble",
       size: "kilo",
@@ -85,7 +85,7 @@ function makeWelcome() {
         type: "box",
         layout: "vertical",
         contents: [
-          { type: "text", text: "☪ มะหฺรอมเช็ค", size: "lg", weight: "bold", color: "#b8903e" },
+          { type: "text", text: "🤝 มะหฺรอมเช็ค", size: "lg", weight: "bold", color: "#b8903e" },
           { type: "text", text: "ตรวจสอบว่าจับมือสลามกันได้ไหม\nตามหลักอิสลาม", size: "sm", color: "#555555", wrap: true, margin: "md" },
           { type: "separator", margin: "lg" },
           { type: "text", text: "💬 พิมพ์ความสัมพันธ์ส่งมาได้เลย เช่น", size: "sm", color: "#8a7e74", margin: "lg" },
@@ -158,7 +158,7 @@ export default async function handler(req, res) {
         }
       } catch {
         await reply(event.replyToken, [
-          { type: "text", text: `☪ มะหฺรอมเช็ค\n\nเปิดแอปเพื่อตรวจสอบ:\n${LIFF_URL}` },
+          { type: "text", text: `🤝 มะหฺรอมเช็ค\n\nเปิดแอปเพื่อตรวจสอบ:\n${LIFF_URL}` },
         ]);
       }
     }
