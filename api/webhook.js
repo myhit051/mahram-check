@@ -122,15 +122,22 @@ export default async function handler(req, res) {
       continue;
     }
 
-    // Text message — do mahram check
+    // Text message — only respond to mahram-related triggers
     if (event.type === "message" && event.message?.type === "text") {
-      const input = event.message.text.trim();
+      const raw = event.message.text.trim();
 
-      // If user types "เมนู" or "help"
-      if (/^(เมนู|menu|help|สวัสดี|หวัดดี)$/i.test(input)) {
+      // "มะหฺรอม" or "mahram" — show welcome/help
+      if (/^(มะหฺรอม|มะห์รอม|mahram|เมนูมะหฺรอม)$/i.test(raw)) {
         await reply(event.replyToken, [makeWelcome()]);
         continue;
       }
+
+      // Prefix trigger: "เช็ค ..." or "#..."
+      const prefixMatch = raw.match(/^(?:เช็ค|เช็ก|check)\s+(.+)$/i) || raw.match(/^#\s*(.+)$/);
+      if (!prefixMatch) continue; // Not a mahram command — ignore, let other systems handle
+
+      const input = prefixMatch[1].trim();
+      if (!input) continue;
 
       // Call our own mahram API (default to female perspective for chat)
       try {
