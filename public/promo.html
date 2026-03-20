@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>โปรโมท — มะหฺรอมเช็ค</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --bg:#1a1410;--surface:#252017;--surface-hover:#2e281f;
+      --border:#3d3528;--accent:#d4a853;--accent-dark:#b8903e;
+      --text:#e8e0d4;--text-sec:#a89e90;--text-ter:#6b6358;
+      --green:#5cb87a;--red:#e06060;
+    }
+    body{
+      font-family:'IBM Plex Sans Thai',sans-serif;
+      background:var(--bg);color:var(--text);
+      min-height:100vh;-webkit-font-smoothing:antialiased;
+    }
+
+    /* Header */
+    .header{
+      position:sticky;top:0;z-index:10;
+      background:rgba(26,20,16,0.85);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+      border-bottom:1px solid var(--border);
+      padding:16px 20px;
+      display:flex;align-items:center;justify-content:space-between;
+    }
+    .header-title{font-size:15px;font-weight:700;color:var(--accent);display:flex;align-items:center;gap:8px}
+    .header-badge{font-size:11px;background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:4px 10px;color:var(--text-ter)}
+
+    /* Container */
+    .container{max-width:640px;margin:0 auto;padding:24px 16px 80px}
+
+    /* Info bar */
+    .info{
+      background:var(--surface);border:1px solid var(--border);border-radius:14px;
+      padding:14px 18px;margin-bottom:24px;
+      font-size:13px;color:var(--text-sec);line-height:1.7;
+      display:flex;align-items:flex-start;gap:10px;
+    }
+    .info-icon{font-size:16px;flex-shrink:0;margin-top:1px}
+
+    /* Post card */
+    .post{
+      background:var(--surface);border:1px solid var(--border);border-radius:18px;
+      margin-bottom:16px;overflow:hidden;
+      transition:border-color 0.2s;
+    }
+    .post:hover{border-color:var(--accent-dark)}
+
+    .post-header{
+      display:flex;align-items:center;justify-content:space-between;
+      padding:14px 18px;border-bottom:1px solid var(--border);
+    }
+    .post-num{
+      font-size:12px;font-weight:600;color:var(--accent);
+      background:rgba(212,168,83,0.12);border-radius:8px;padding:4px 10px;
+    }
+    .post-theme{font-size:12px;color:var(--text-ter);font-weight:500}
+
+    .post-body{
+      padding:18px;
+      white-space:pre-wrap;word-wrap:break-word;
+      font-size:14px;line-height:1.85;color:var(--text);
+      max-height:200px;overflow:hidden;
+      position:relative;
+      transition:max-height 0.35s ease;
+    }
+    .post-body.expanded{max-height:2000px}
+    .post-body:not(.expanded)::after{
+      content:'';position:absolute;bottom:0;left:0;right:0;height:60px;
+      background:linear-gradient(transparent,var(--surface));
+      pointer-events:none;
+    }
+
+    .post-footer{
+      display:flex;align-items:center;gap:8px;
+      padding:12px 18px;border-top:1px solid var(--border);
+    }
+    .btn{
+      padding:8px 16px;border-radius:10px;border:none;
+      font-family:inherit;font-size:13px;font-weight:600;
+      cursor:pointer;transition:all 0.15s;
+      display:flex;align-items:center;gap:6px;
+    }
+    .btn-copy{
+      background:linear-gradient(135deg,var(--accent),var(--accent-dark));
+      color:#fff;box-shadow:0 2px 10px rgba(212,168,83,0.25);
+    }
+    .btn-copy:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(212,168,83,0.35)}
+    .btn-copy:active{transform:translateY(0)}
+    .btn-copy.copied{background:var(--green);box-shadow:0 2px 10px rgba(92,184,122,0.25)}
+
+    .btn-expand{
+      background:var(--surface-hover);color:var(--text-sec);
+      border:1px solid var(--border);margin-left:auto;
+    }
+    .btn-expand:hover{color:var(--text);border-color:var(--accent)}
+
+    /* Toast */
+    .toast{
+      position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(80px);
+      background:var(--green);color:#fff;
+      padding:12px 24px;border-radius:12px;font-size:14px;font-weight:600;
+      box-shadow:0 8px 30px rgba(0,0,0,0.4);
+      opacity:0;transition:all 0.3s ease;z-index:100;
+      pointer-events:none;
+    }
+    .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+    /* Copy all */
+    .copy-all{
+      display:flex;justify-content:center;margin-top:24px;
+    }
+    .btn-copy-all{
+      padding:14px 32px;border-radius:14px;border:1px solid var(--accent);
+      background:transparent;color:var(--accent);
+      font-family:inherit;font-size:14px;font-weight:600;
+      cursor:pointer;transition:all 0.2s;
+    }
+    .btn-copy-all:hover{background:rgba(212,168,83,0.1)}
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-title">🤝 โปรโมท FB</div>
+  <div class="header-badge">Internal</div>
+</div>
+
+<div class="container">
+  <div class="info">
+    <span class="info-icon">💡</span>
+    <span>กดปุ่ม "คัดลอก" แล้ววางลง Facebook ได้เลย — อย่าลืมแก้ [ใส่ลิงก์] เป็นลิงก์ LINE OA จริง</span>
+  </div>
+
+  <div id="posts"></div>
+
+  <div class="copy-all">
+    <button class="btn-copy-all" onclick="copyAll()">📋 คัดลอกทั้งหมด (10 โพสต์)</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+var POSTS = [
+  {
+    num: 1, theme: "แนะนำแอป (เปิดตัว)",
+    text: "🤝 จับมือสลามได้ไหม? เช็คง่ายๆ ได้แล้ววันนี้!\n\nเคยสงสัยไหมว่า... คนนี้เป็นมะหฺรอมของเราหรือเปล่า?\nจับมือสลามกันได้ไหม?\n\n🔍 \"มะหฺรอมเช็ค\" เครื่องมือตรวจสอบความเป็นมะหฺรอมตามหลักอิสลาม\n✅ แค่พิมพ์ความสัมพันธ์ ก็รู้คำตอบทันที\n✅ อ้างอิงหลักฟิกฮ์ที่ถูกต้อง\n✅ ฟรี ไม่ต้องโหลด ใช้ผ่านไลน์ได้เลย\n\n👉 เพิ่มเพื่อน LINE: [ใส่ลิงก์]\nหรือพิมพ์ \"เช็ค ลุง\" ส่งมาที่บอทเลย!\n\n#มะหฺรอมเช็ค #MahramCheck #อิสลาม #มุสลิม #ฟิกฮ์ #จับมือสลาม"
+  },
+  {
+    num: 2, theme: "สถานการณ์งานแต่ง",
+    text: "🤝 ไปงานนิกาห์ เจอญาติฝ่ายเจ้าบ่าว... จับมือได้ไหม?\n\nงานแต่งงานมุสลิม เจอญาติผู้ใหญ่หลายคน\nบางทีก็ไม่แน่ใจว่าเป็นมะหฺรอมหรือเปล่า 😅\n\nไม่ต้องเขินที่จะถาม! ลองเช็คก่อนได้\nพิมพ์ \"เช็ค พี่ชายของสามี\" ส่งมาที่ LINE บอทเลย\n\n📱 เพิ่มเพื่อน LINE: [ใส่ลิงก์]\n\n#มะหฺรอมเช็ค #งานนิกาห์ #มุสลิมไทย #อิสลาม"
+  },
+  {
+    num: 3, theme: "คำถามยอดฮิต",
+    text: "🤔 \"ลูกพี่ลูกน้อง เป็นมะหฺรอมไหม?\"\n\nคำถามที่คนถามบ่อยที่สุด!\n\nคำตอบ: ❌ ลูกพี่ลูกน้อง ไม่ใช่ มะหฺรอม\nไม่อนุญาตให้สัมผัสกัน แม้จะเป็นญาติสนิท\n\nอยากรู้ความสัมพันธ์อื่นๆ? ลองเช็คได้เลย!\n🤝 มะหฺรอมเช็ค — ใช้ฟรี ผ่าน LINE\n\n👉 [ใส่ลิงก์]\n\n#มะหฺรอมเช็ค #ลูกพี่ลูกน้อง #มะหฺรอม #ฟิกฮ์อิสลาม"
+  },
+  {
+    num: 4, theme: "เน้นความง่าย",
+    text: "⚡ เช็คมะหฺรอม ใช้เวลาแค่ 3 วินาที\n\n1️⃣ เพิ่มเพื่อน LINE\n2️⃣ พิมพ์ \"เช็ค\" ตามด้วยความสัมพันธ์\n3️⃣ ได้คำตอบทันที พร้อมเหตุผล\n\nตัวอย่าง:\n\"เช็ค ลุง\" → ✅ เป็นมะหฺรอม\n\"เช็ค พี่เขย\" → ❌ ไม่เป็นมะหฺรอม\n\nง่ายแบบนี้ ลองเลย!\n👉 [ใส่ลิงก์]\n\n#มะหฺรอมเช็ค #MahramCheck #LINEBot #มุสลิม"
+  },
+  {
+    num: 5, theme: "แชร์ความรู้",
+    text: "📖 รู้หรือไม่? มะหฺรอมมี 3 ประเภท\n\n1. 🩸 นะซับ (สายเลือด) — พ่อ แม่ พี่น้อง ลุง ป้า น้า อา\n2. 💍 มุศอฮะเราะฮ์ (สมรส) — พ่อสามี แม่ภรรยา ลูกเลี้ยง\n3. 🍼 เราะฎออ์ (นมแม่) — พี่น้องร่วมนมแม่เลี้ยง\n\nแต่ละประเภทมีรายละเอียดต่างกัน\nอยากรู้ว่าใครเป็นมะหฺรอมของคุณ? เช็คได้ฟรี!\n\n🤝 มะหฺรอมเช็ค: [ใส่ลิงก์]\n\n#มะหฺรอมเช็ค #ความรู้อิสลาม #ฟิกฮ์ #มะหฺรอม #นะซับ"
+  },
+  {
+    num: 6, theme: "สถานการณ์วันฮารีรายอ",
+    text: "🌙 ฮารีรายอนี้ เจอญาติเยอะ ใครจับมือได้บ้าง?\n\nวันรายอ ญาติๆ มากันเต็มบ้าน\nผู้ใหญ่ยื่นมือมาสลาม... จะทำยังไงดี?\n\nเตรียมตัวก่อนไปเยี่ยมญาติ!\nเช็คมะหฺรอมล่วงหน้าได้เลยที่ 🤝 มะหฺรอมเช็ค\n\n\"เช็ค อาของสามี\" → ❌ ไม่เป็นมะหฺรอม\n\"เช็ค พ่อของสามี\" → ✅ เป็นมะหฺรอม\n\n👉 เพิ่มเพื่อน LINE: [ใส่ลิงก์]\n\n#มะหฺรอมเช็ค #ฮารีรายอ #อีดิ้ลฟิตรี #มุสลิมไทย"
+  },
+  {
+    num: 7, theme: "มุสลิมใหม่",
+    text: "💚 เพิ่งเข้ารับอิสลาม? เรื่องมะหฺรอมไม่ต้องจำเอง\n\nสำหรับมุสลิมใหม่ เรื่องมะหฺรอมอาจจะสับสน\nว่าจับมือใครได้ จับมือใครไม่ได้\n\n🤝 มะหฺรอมเช็ค ช่วยคุณได้!\nแค่พิมพ์ความสัมพันธ์ ระบบจะบอกคำตอบ\nพร้อมอธิบายเหตุผลตามหลักฟิกฮ์ให้ด้วย\n\nใช้ง่าย ฟรี ผ่าน LINE\n👉 [ใส่ลิงก์]\n\n#มะหฺรอมเช็ค #มุสลิมใหม่ #มุอัลลัฟ #อิสลาม #เข้ารับอิสลาม"
+  },
+  {
+    num: 8, theme: "พี่ชายสามี (คำถามยอดฮิต)",
+    text: "⚠️ \"พี่ชายของสามี\" จับมือได้ไหม?\n\nหลายคนเข้าใจผิดว่าเป็นญาติสามีก็น่าจะเป็นมะหฺรอม\n\nแต่จริงๆ แล้ว...\n❌ พี่น้องชายสามี ไม่ใช่ มะหฺรอม\n\nท่านนบี ﷺ กล่าวว่า:\n\"พี่น้องสามีคือความตาย\" (บันทึกโดย อัลบุคอรีย์)\n\nหมายถึงต้องระวังเป็นพิเศษ ไม่ควรอยู่สองต่อสอง\n\nอยากเช็คความสัมพันธ์อื่น?\n🤝 มะหฺรอมเช็ค: [ใส่ลิงก์]\n\n#มะหฺรอมเช็ค #พี่ชายสามี #หะดีษ #ฟิกฮ์อิสลาม"
+  },
+  {
+    num: 9, theme: "ฟีเจอร์ AI",
+    text: "🤖 ถามแบบไหนก็ตอบได้!\n\nมะหฺรอมเช็ค มี AI ช่วยวิเคราะห์\nไม่ว่าจะพิมพ์แบบไหน ก็เข้าใจ\n\nลองพิมพ์:\n• \"ลุง\" → ✅ เป็นมะหฺรอม\n• \"แม่ของแม่ของสามี\" → ✅ เป็นมะหฺรอม\n• \"ลูกสาวของพี่ชายสามี\" → ❌ ไม่เป็น\n\nแม้ความสัมพันธ์ซับซ้อน AI ก็ช่วยวิเคราะห์ได้!\n👉 ลองเลย: [ใส่ลิงก์]\n\n#มะหฺรอมเช็ค #AI #MahramCheck #เทคโนโลยีอิสลาม"
+  },
+  {
+    num: 10, theme: "กระตุ้นแชร์",
+    text: "📢 แชร์ให้เพื่อนมุสลิมรู้จัก!\n\nถ้าคุณเคยสงสัยเรื่องมะหฺรอม...\nเพื่อนคุณก็อาจสงสัยเหมือนกัน\n\n🤝 มะหฺรอมเช็ค — เครื่องมือเช็คมะหฺรอมฟรี\n✅ ใช้ง่าย แค่พิมพ์ความสัมพันธ์\n✅ ได้คำตอบทันที พร้อมอ้างอิง\n✅ ใช้ผ่าน LINE ไม่ต้องโหลดแอป\n\nแชร์โพสต์นี้ให้เป็นประโยชน์กับคนอื่น 🙏\nอินชาอัลลอฮ์ ได้ผลบุญ\n\n👉 เพิ่มเพื่อน LINE: [ใส่ลิงก์]\n\n#มะหฺรอมเช็ค #แชร์ #มุสลิม #อิสลาม #ดะวะฮ์ #MahramCheck"
+  }
+];
+
+function esc(s) {
+  var d = document.createElement('div');
+  d.textContent = s;
+  return d.innerHTML;
+}
+
+function render() {
+  var html = '';
+  for (var i = 0; i < POSTS.length; i++) {
+    var p = POSTS[i];
+    html += '<div class="post" id="post-' + p.num + '">' +
+      '<div class="post-header">' +
+        '<span class="post-num">#' + p.num + '</span>' +
+        '<span class="post-theme">' + esc(p.theme) + '</span>' +
+      '</div>' +
+      '<div class="post-body" id="body-' + p.num + '">' + esc(p.text) + '</div>' +
+      '<div class="post-footer">' +
+        '<button class="btn btn-copy" id="copybtn-' + p.num + '" onclick="copyPost(' + p.num + ')">📋 คัดลอก</button>' +
+        '<button class="btn btn-expand" onclick="toggleExpand(' + p.num + ')">ดูทั้งหมด</button>' +
+      '</div>' +
+    '</div>';
+  }
+  document.getElementById('posts').innerHTML = html;
+}
+
+function copyPost(num) {
+  var text = POSTS[num - 1].text;
+  navigator.clipboard.writeText(text).then(function() {
+    var btn = document.getElementById('copybtn-' + num);
+    btn.classList.add('copied');
+    btn.innerHTML = '✅ คัดลอกแล้ว';
+    showToast('คัดลอกโพสต์ #' + num + ' แล้ว!');
+    setTimeout(function() {
+      btn.classList.remove('copied');
+      btn.innerHTML = '📋 คัดลอก';
+    }, 2000);
+  });
+}
+
+function toggleExpand(num) {
+  var body = document.getElementById('body-' + num);
+  body.classList.toggle('expanded');
+}
+
+function copyAll() {
+  var all = POSTS.map(function(p) {
+    return '--- โพสต์ #' + p.num + ': ' + p.theme + ' ---\n\n' + p.text;
+  }).join('\n\n\n');
+  navigator.clipboard.writeText(all).then(function() {
+    showToast('คัดลอกทั้ง 10 โพสต์แล้ว!');
+  });
+}
+
+function showToast(msg) {
+  var t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(function() { t.classList.remove('show'); }, 2000);
+}
+
+render();
+</script>
+</body>
+</html>
