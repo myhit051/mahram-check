@@ -1,8 +1,14 @@
 // /api/webhook.js — LINE Messaging API Webhook
 // Auto-replies with mahram check results when users send messages
 
+import { check, lookupByKey } from "./lib/rule-engine.js";
+
 const CHANNEL_ACCESS_TOKEN = process.env.LINE_CHANNEL_ACCESS_TOKEN;
 const LIFF_URL = "https://liff.line.me/2009526885-XOQVgErD";
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+
+// Simple in-memory gender cache (resets on cold start — acceptable)
+const userGenders = new Map();
 
 async function reply(replyToken, messages) {
   await fetch("https://api.line.me/v2/bot/message/reply", {
@@ -109,6 +115,76 @@ function makeWelcome() {
   };
 }
 
+// Infer gender from input text
+function inferGender(text) {
+  if (/สามี|ผัว|พ่อสามี|พ่อผัว|พี่ชายสามี|น้องชายสามี|พี่สามี|น้องสามี/.test(text)) return "female";
+  if (/ภรรยา|เมีย|แม่ยาย|แม่เมีย|พี่สาวภรรยา|น้องสาวภรรยา|พ่อตา/.test(text)) return "male";
+  return null;
+}
+
+// AI normalization (same as in mahram.js but called directly)
+async function aiNormalize(input, gender) {
+  if (!GEMINI_API_KEY) return null;
+  const genderThai = gender === "female" ? "ผู้หญิง" : "ผู้ชาย";
+  const prompt = `คุณเป็นตัวแปลงภาษาไทยสำหรับความสัมพันธ์ในครอบครัว
+ผู้ถามเป็น${genderThai}
+
+จงแปลง "${input}" เป็นความสัมพันธ์มาตรฐานภาษาไทย
+ห้ามตัดสินว่าเป็นมะหฺรอมหรือไม่ ทำได้แค่แปลงความสัมพันธ์เท่านั้น
+
+ตอบเป็น JSON เท่านั้น:
+{"normalized": "ความสัมพันธ์มาตรฐาน", "parsed_as": "คำอธิบายสั้นๆ"}
+ถ้าแปลงไม่ได้: {"normalized": null, "parsed_as": null}`;
+
+  try {
+    const resp = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: prompt }] }],
+          generationConfig: { temperature: 0, maxOutputTokens: 256, responseMimeType: "application/json", thinkingConfig: { thinkingBudget: 0 } },
+        }),
+      }
+    );
+    const data = await resp.json();
+    if (!resp.ok) return null;
+    const parts = data.candidates?.[0]?.content?.parts || [];
+    const text = parts.map(p => p.text || "").join("\n").replace(/```json|```/g, "").trim();
+    return JSON.parse(text);
+  } catch { return null; }
+}
+
+// Full check: rule engine → AI normalize → rule engine again
+async function fullCheck(gender, input) {
+  // Step 1: Direct rule engine
+  const result = check(gender, input);
+  if (result) return { ...result, source: "database" };
+
+  // Step 2: AI normalization → rule engine
+  const parsed = await aiNormalize(input, gender);
+  if (parsed?.normalized) {
+    const normalized = lookupByKey(gender, parsed.normalized);
+    if (normalized) return { ...normalized, source: "ai_parsed", parsed_as: parsed.parsed_as };
+  }
+
+  return null;
+}
+
+function makeGenderAsk(pendingInput) {
+  return {
+    type: "text",
+    text: `🤝 มะหฺรอมเช็ค\n\nกรุณาเลือกเพศของคุณก่อนนะคะ\n(ผลลัพธ์จะแตกต่างกันตามเพศผู้ถาม)`,
+    quickReply: {
+      items: [
+        { type: "action", action: { type: "message", label: "♂ ผู้ชาย", text: `เพศ:ชาย ${pendingInput}` } },
+        { type: "action", action: { type: "message", label: "♀ ผู้หญิง", text: `เพศ:หญิง ${pendingInput}` } },
+      ],
+    },
+  };
+}
+
 export default async function handler(req, res) {
   if (req.method === "GET") return res.status(200).send("OK");
   if (req.method !== "POST") return res.status(405).end();
@@ -122,9 +198,20 @@ export default async function handler(req, res) {
       continue;
     }
 
-    // Text message — only respond to mahram-related triggers
+    // Text message
     if (event.type === "message" && event.message?.type === "text") {
       const raw = event.message.text.trim();
+      const userId = event.source?.userId;
+
+      // "เปลี่ยนเพศ" — reset gender
+      if (/^เปลี่ยนเพศ$/i.test(raw)) {
+        if (userId) userGenders.delete(userId);
+        await reply(event.replyToken, [{
+          type: "text",
+          text: "รีเซ็ตเพศแล้ว ครั้งต่อไปจะถามเพศใหม่ค่ะ",
+        }]);
+        continue;
+      }
 
       // "มะหฺรอม" or "mahram" — show welcome/help
       if (/^(มะหฺรอม|มะห์รอม|mahram|เมนูมะหฺรอม)$/i.test(raw)) {
@@ -132,34 +219,66 @@ export default async function handler(req, res) {
         continue;
       }
 
+      // Gender selection from Quick Reply: "เพศ:ชาย ..." or "เพศ:หญิง ..."
+      const genderMatch = raw.match(/^เพศ:(ชาย|หญิง)\s*(.*)$/);
+      if (genderMatch) {
+        const gender = genderMatch[1] === "ชาย" ? "male" : "female";
+        if (userId) userGenders.set(userId, gender);
+        const pendingInput = genderMatch[2]?.trim();
+        if (pendingInput) {
+          // Process the pending query with selected gender
+          try {
+            const result = await fullCheck(gender, pendingInput);
+            if (result) {
+              await reply(event.replyToken, [makeFlexResult(pendingInput, result)]);
+            } else {
+              await reply(event.replyToken, [{
+                type: "text",
+                text: `❓ ไม่พบ "${pendingInput}" ในฐานข้อมูล\nกรุณาลองพิมพ์ใหม่ให้ชัดเจนขึ้น\n\nหรือเปิดแอปเต็ม:\n${LIFF_URL}`,
+              }]);
+            }
+          } catch {
+            await reply(event.replyToken, [{ type: "text", text: `🤝 เปิดแอปเพื่อตรวจสอบ:\n${LIFF_URL}` }]);
+          }
+        } else {
+          await reply(event.replyToken, [{ type: "text", text: `✅ บันทึกเพศ: ${genderMatch[1]}\nพิมพ์ "เช็ค ..." เพื่อตรวจสอบได้เลยค่ะ` }]);
+        }
+        continue;
+      }
+
       // Prefix trigger: "เช็ค ..." or "#..."
       const prefixMatch = raw.match(/^(?:เช็ค|เช็ก|check)\s+(.+)$/i) || raw.match(/^#\s*(.+)$/);
-      if (!prefixMatch) continue; // Not a mahram command — ignore, let other systems handle
+      if (!prefixMatch) continue;
 
       const input = prefixMatch[1].trim();
       if (!input) continue;
 
-      // Call our own mahram API (default to female perspective for chat)
-      try {
-        const apiUrl = `https://${req.headers.host}/api/mahram`;
-        const apiRes = await fetch(apiUrl, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ gender: "female", input }),
-        });
-        const result = await apiRes.json();
+      // Determine gender: cached > inferred > ask
+      let gender = userId ? userGenders.get(userId) : null;
+      if (!gender) gender = inferGender(input);
 
-        if (result.error) {
-          await reply(event.replyToken, [
-            { type: "text", text: `❌ เกิดข้อผิดพลาด กรุณาลองใหม่\n\nหรือเปิดแอปเต็ม:\n${LIFF_URL}` },
-          ]);
-        } else {
+      if (!gender) {
+        // Ask gender with Quick Reply
+        await reply(event.replyToken, [makeGenderAsk(input)]);
+        continue;
+      }
+
+      // Store inferred gender for future use
+      if (userId && !userGenders.has(userId)) userGenders.set(userId, gender);
+
+      // Process with rule engine
+      try {
+        const result = await fullCheck(gender, input);
+        if (result) {
           await reply(event.replyToken, [makeFlexResult(input, result)]);
+        } else {
+          await reply(event.replyToken, [{
+            type: "text",
+            text: `❓ ไม่พบ "${input}" ในฐานข้อมูล\nกรุณาลองพิมพ์ใหม่ให้ชัดเจนขึ้น\n\nหรือเปิดแอปเต็ม:\n${LIFF_URL}`,
+          }]);
         }
       } catch {
-        await reply(event.replyToken, [
-          { type: "text", text: `🤝 มะหฺรอมเช็ค\n\nเปิดแอปเพื่อตรวจสอบ:\n${LIFF_URL}` },
-        ]);
+        await reply(event.replyToken, [{ type: "text", text: `🤝 เปิดแอปเพื่อตรวจสอบ:\n${LIFF_URL}` }]);
       }
     }
   }

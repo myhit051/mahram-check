@@ -40,6 +40,13 @@ function findDB(db, inp) {
 function patMatch(g, inp) {
   var n = norm(inp);
   var P = [
+    // Edge case: ภรรยา/เมียอื่นของพ่อตา (NOT mahram) — must be before general patterns
+    {re:/(?:ภรรยา|เมีย)(?:ที่\s*\d+|ใหม่|อื่น|คนที่\s*\d+)?.*(?:ของ\s*)?(?:พ่อตา|พ่อสามี|พ่อผัว|พ่อของภรรยา|พ่อของเมีย)/,g:"male",r:{mahram:false,type:NOT_MAHRAM,reason:"ภรรยาอื่นของพ่อตา (แม่เลี้ยงของภรรยา) ไม่ใช่มะหฺรอม เฉพาะแม่แท้ของภรรยาเท่านั้นที่เป็นมะหฺรอม"}},
+    {re:/(?:ภรรยา|เมีย)(?:ที่\s*\d+|ใหม่|อื่น|คนที่\s*\d+)?.*(?:ของ\s*)?(?:พ่อสามี|พ่อผัว|พ่อของสามี|พ่อของผัว)/,g:"female",r:{mahram:false,type:NOT_MAHRAM,reason:"ภรรยาอื่นของพ่อสามี (แม่เลี้ยงของสามี) ไม่ใช่มะหฺรอม"}},
+    {re:/(?:แม่เลี้ยง).*(?:ของ\s*)?(?:ภรรยา|เมีย)/,g:"male",r:{mahram:false,type:NOT_MAHRAM,reason:"แม่เลี้ยงของภรรยา ไม่ใช่มะหฺรอม เฉพาะแม่แท้ของภรรยาเท่านั้นที่เป็นมะหฺรอม"}},
+    {re:/(?:แม่เลี้ยง).*(?:ของ\s*)?(?:สามี|ผัว)/,g:"female",r:{mahram:false,type:NOT_MAHRAM,reason:"แม่เลี้ยงของสามี ไม่ใช่มะหฺรอม"}},
+    {re:/(?:พ่อเลี้ยง).*(?:ของ\s*)?(?:ภรรยา|เมีย)/,g:"male",r:{mahram:false,type:NOT_MAHRAM,reason:"พ่อเลี้ยงของภรรยา ไม่ใช่มะหฺรอม"}},
+    {re:/(?:พ่อเลี้ยง).*(?:ของ\s*)?(?:สามี|ผัว)/,g:"female",r:{mahram:false,type:NOT_MAHRAM,reason:"พ่อเลี้ยงของสามี ไม่ใช่มะหฺรอม"}},
     {re:/(?:แม่|มารดา).*(?:ของ\s*)?(?:แม่|มารดา|พ่อ|บิดา).*(?:ของ\s*)?(?:ภรรยา|เมีย)/,g:"male",r:{mahram:true,type:MUSAHARAH,reason:"ย่า/ยายของภรรยา (บรรพบุรุษหญิงทุกชั้น) เป็นมะหฺรอมจากการสมรส"}},
     {re:/(?:พ่อ|บิดา).*(?:ของ\s*)?(?:แม่|มารดา|พ่อ|บิดา).*(?:ของ\s*)?(?:ภรรยา|เมีย)/,g:"male",r:{mahram:true,type:MUSAHARAH,reason:"ปู่/ตาของภรรยา เป็นมะหฺรอมจากการสมรส"}},
     {re:/(?:แม่|มารดา).*(?:ของ\s*)?(?:แม่|มารดา|พ่อ|บิดา).*(?:ของ\s*)?(?:สามี|ผัว)/,g:"female",r:{mahram:true,type:MUSAHARAH,reason:"ย่า/ยายของสามี (บรรพบุรุษหญิงทุกชั้น) เป็นมะหฺรอมจากการสมรส"}},
@@ -304,7 +311,7 @@ function renderResult(res, src, inp) {
         '<div class="detail-query">"' + inp + '"</div>' +
         '<div class="detail-reason">' + res.reason + '</div>' +
         (showQ ? '<div class="quran-ref">📖 อ้างอิง: ซูเราะฮฺ อันนิซาอฺ (4:23)</div>' : '') +
-        '<div class="source-badge">' + (src === "rule" ? "📚 ฐานข้อมูล" : src === "ai" ? "🤖 AI (Gemini)" : "") + '</div>' +
+        '<div class="source-badge">' + (src === "rule" ? "📚 ฐานข้อมูล" : src === "ai" || src === "ai_parsed" ? "📚 ฐานข้อมูล + 🤖 AI แปลงภาษา" : src === "database" ? "📚 ฐานข้อมูล" : "") + '</div>' +
       '</div>' +
     '</div>';
   show("resultArea"); show("shareArea");
