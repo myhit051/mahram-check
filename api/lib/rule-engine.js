@@ -11,7 +11,7 @@ function norm(t) {
     .replace(/เเ/g, "แ").trim();
 }
 
-// Direct alias lookup
+// Direct alias lookup — exact match only, no fuzzy
 function findDB(db, inp) {
   const n = norm(inp);
   if (!n) return null;
@@ -23,27 +23,12 @@ function findDB(db, inp) {
     }
   }
 
-  // Fuzzy match
-  for (const entry of db) {
-    for (const alias of entry.a) {
-      const na = norm(alias);
-      if (na.length >= 3 && n.includes(na) && na.length >= n.length * 0.6) return entry;
-      if (n.length >= 4 && na.includes(n) && n.length >= na.length * 0.6) return entry;
-    }
-  }
-
-  // Clean connectors and try again
+  // Clean connectors and try exact match again
   const cl = n.replace(/ของ|ที่เป็น|ซึ่งเป็น|คือ|กับ|และ|หรือ|ที่|เป็น/g, " ").replace(/\s+/g, " ").trim();
   if (cl !== n) {
     for (const entry of db) {
       for (const alias of entry.a) {
         if (norm(alias) === cl) return entry;
-      }
-    }
-    for (const entry of db) {
-      for (const alias of entry.a) {
-        const na = norm(alias);
-        if (na.length >= 3 && cl.includes(na) && na.length >= cl.length * 0.6) return entry;
       }
     }
   }
