@@ -21,18 +21,9 @@ function findDB(db, inp) {
   var n = norm(inp);
   if (!n) return null;
   for (var i = 0; i < db.length; i++) for (var j = 0; j < db[i].a.length; j++) if (norm(db[i].a[j]) === n) return db[i];
-  for (var i = 0; i < db.length; i++) for (var j = 0; j < db[i].a.length; j++) {
-    var na = norm(db[i].a[j]);
-    if (na.length >= 3 && n.includes(na) && na.length >= n.length * 0.6) return db[i];
-    if (n.length >= 4 && na.includes(n) && n.length >= na.length * 0.6) return db[i];
-  }
   var cl = n.replace(/ของ|ที่เป็น|ซึ่งเป็น|คือ|กับ|และ|หรือ|ที่|เป็น/g," ").replace(/\s+/g," ").trim();
   if (cl !== n) {
     for (var i = 0; i < db.length; i++) for (var j = 0; j < db[i].a.length; j++) if (norm(db[i].a[j]) === cl) return db[i];
-    for (var i = 0; i < db.length; i++) for (var j = 0; j < db[i].a.length; j++) {
-      var na = norm(db[i].a[j]);
-      if (na.length >= 3 && cl.includes(na) && na.length >= cl.length * 0.6) return db[i];
-    }
   }
   return null;
 }
@@ -53,6 +44,9 @@ function patMatch(g, inp) {
     // --- Parent of father's wife / mother's husband (NOT mahram) ---
     {re:/(?:แม่|มารดา|พ่อ|บิดา).*(?:ของ\s*)?(?:ภรรยา|เมีย).*(?:ของ\s*)?(?:พ่อ|บิดา)/,g:"male",r:{mahram:false,type:NOT_MAHRAM,reason:"แม่/พ่อของภรรยาของพ่อ (ญาติแม่เลี้ยง) ไม่ใช่มะหฺรอม เฉพาะแม่เลี้ยง (ภรรยาของพ่อ) เท่านั้นที่เป็นมะหฺรอม"}},
     {re:/(?:แม่|มารดา|พ่อ|บิดา).*(?:ของ\s*)?(?:สามี|ผัว).*(?:ของ\s*)?(?:แม่|มารดา)/,g:"female",r:{mahram:false,type:NOT_MAHRAM,reason:"แม่/พ่อของสามีของแม่ (ญาติพ่อเลี้ยง) ไม่ใช่มะหฺรอม เฉพาะพ่อเลี้ยง (สามีของแม่) เท่านั้นที่เป็นมะหฺรอม"}},
+    // --- In-law of parent (NOT mahram) ---
+    {re:/(?:แม่ยาย|แม่ภรรยา|แม่เมีย|พ่อตา|พ่อภรรยา|พ่อเมีย).*(?:ของ\s*)?(?:พ่อ|บิดา)/,g:"male",r:{mahram:false,type:NOT_MAHRAM,reason:"แม่ยาย/พ่อตาของพ่อ (ญาติแม่เลี้ยง) ไม่ใช่มะหฺรอม เฉพาะแม่เลี้ยง (ภรรยาของพ่อ) เท่านั้นที่เป็นมะหฺรอม"}},
+    {re:/(?:พ่อสามี|พ่อผัว|แม่สามี|แม่ผัว).*(?:ของ\s*)?(?:แม่|มารดา)/,g:"female",r:{mahram:false,type:NOT_MAHRAM,reason:"พ่อสามี/แม่สามีของแม่ (ญาติพ่อเลี้ยง) ไม่ใช่มะหฺรอม เฉพาะพ่อเลี้ยง (สามีของแม่) เท่านั้นที่เป็นมะหฺรอม"}},
     {re:/(?:แม่|มารดา).*(?:ของ\s*)?(?:แม่|มารดา|พ่อ|บิดา).*(?:ของ\s*)?(?:ภรรยา|เมีย)/,g:"male",r:{mahram:true,type:MUSAHARAH,reason:"ย่า/ยายของภรรยา (บรรพบุรุษหญิงทุกชั้น) เป็นมะหฺรอมจากการสมรส"}},
     {re:/(?:พ่อ|บิดา).*(?:ของ\s*)?(?:แม่|มารดา|พ่อ|บิดา).*(?:ของ\s*)?(?:ภรรยา|เมีย)/,g:"male",r:{mahram:true,type:MUSAHARAH,reason:"ปู่/ตาของภรรยา เป็นมะหฺรอมจากการสมรส"}},
     {re:/(?:แม่|มารดา).*(?:ของ\s*)?(?:แม่|มารดา|พ่อ|บิดา).*(?:ของ\s*)?(?:สามี|ผัว)/,g:"female",r:{mahram:true,type:MUSAHARAH,reason:"ย่า/ยายของสามี (บรรพบุรุษหญิงทุกชั้น) เป็นมะหฺรอมจากการสมรส"}},
